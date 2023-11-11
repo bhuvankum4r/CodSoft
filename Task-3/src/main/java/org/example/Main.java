@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Main {
 
-    private static final String API_KEY = "2b6c2be274b4421c9e12193f0a99db94";
+    private static final String API_KEY = "YOUR_API_KEY";
     private static final String BASE_URL = "https://open.er-api.com/v6/latest/";
 
     private static final List<String> CURRENCY_CODES = Arrays.asList(
