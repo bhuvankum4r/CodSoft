@@ -1,0 +1,370 @@
+2. Install a C compiler in the virtual machine created using virtual box  
+ Write a C program for storing data in a simulated cloud storage 
+environment using a local file 
+
+code
+
+#include <stdio.h> 
+#include <stdlib.h> 
+int main() { 
+char data[1024]; 
+// Open a file in write mode. Simulating a cloud storage by using a local file. 
+FILE *fptr = fopen("cloud_storage.txt", "w"); 
+if (fptr == NULL) { 
+printf("Error opening the file!\n"); 
+exit(1); 
+} 
+// Get user input 
+printf("Enter text to store in the cloud: "); 
+fgets(data, sizeof(data), stdin); 
+// Write data to the file 
+fprintf(fptr, "%s", data); 
+// Close the file 
+fclose(fptr); 
+printf("Data successfully saved to 'cloud_storage.txt'\n"); 
+return 0; 
+} 
+
+terminal
+
+gedit second.c
+gcc -o sec second.c
+./sec
+
+3.  Write a C-Program for CPU usage Monitoring and Logging on Cloud-Based
+Ubuntu Servers. 
+
+code 
+
+#include <stdio.h> 
+#include <unistd.h> 
+#include <stdlib.h> 
+#include <string.h> 
+// Function to read the current CPU usage from the /proc/stat file 
+float get_cpu_usage() { 
+long double a[4], b[4], loadavg; 
+FILE *fp; 
+fp = fopen("/proc/stat","r"); 
+fscanf(fp, "%*s %Lf %Lf %Lf %Lf", &a[0], &a[1], &a[2], &a[3]); 
+fclose(fp); 
+sleep(1); 
+fp = fopen("/proc/stat","r"); 
+fscanf(fp, "%*s %Lf %Lf %Lf %Lf", &b[0], &b[1], &b[2], &b[3]); 
+fclose(fp); 
+loadavg = ((b[0]+b[1]+b[2]) - (a[0]+a[1]+a[2])) / ((b[0]+b[1]+b[2]+b[3]) - (a[0]+a[1]+a[2]+a[3])); 
+return loadavg; 
+} 
+int main() { 
+FILE *log_file; 
+char *filename = "cpu_usage.log"; 
+// Open log file for writing 
+log_file = fopen(filename, "w"); 
+if (log_file == NULL) { 
+perror("Failed to open log file"); 
+return EXIT_FAILURE; 
+} 
+// Loop to record CPU usage 
+for (int i = 0; i < 10; ++i) { 
+float usage = get_cpu_usage(); 
+fprintf(log_file, "CPU Usage: %.2f%%\n", usage * 100); 
+printf("Logged CPU Usage: %.2f%%\n", usage * 100);  
+sleep(5); // Sleep for 5 seconds 
+} 
+// Close log file 
+fclose(log_file); 
+printf("CPU usage logging completed.\n"); 
+return 0; 
+} 
+
+5. Hadoop installation
+
+sudo apt update
+sudo apt install openjdk-8-jdk -y
+java -version
+javac -version
+sudo apt install openssh-server openssh-client -y
+sudo adduser hdoop
+sudo adduser hdoop sudo
+su - hdoop
+ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 0600 ~/.ssh/authorized_keys
+ssh localhost
+wget https://dlcdn.apache.org/hadoop/common/hadoop-3.2.4/hadoop-3.2.4.tar.gz
+tar xzf hadoop-3.2.4.tar.gz
+sudo nano .bashrc
+
+#Hadoop Related Options
+export HADOOP_HOME=/home/hdoop/hadoop-3.2.4
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
+
+source ~/.bashrc
+sudo nano $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+sudo nano $HADOOP_HOME/etc/hadoop/core-site.xml
+
+   <property>
+        <name>hadoop.tmp.dir</name>
+        <value>/home/hdoop/tmpdata</value>
+        <description>A base for other temporary directories.</description>
+    </property>
+    <property>
+        <name>fs.default.name</name>
+        <value>hdfs://localhost:9000</value>
+        <description>The name of the default file system></description>
+    </property>
+
+sudo nano $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+
+<property>
+  <name>dfs.data.dir</name>
+  <value>/home/hdoop/dfsdata/namenode</value>
+</property>
+<property>
+  <name>dfs.data.dir</name>
+  <value>/home/hdoop/dfsdata/datanode</value>
+</property>
+<property>
+  <name>dfs.replication</name>
+  <value>1</value>
+</property>
+
+sudo nano $HADOOP_HOME/etc/hadoop/mapred-site.xml
+
+<property>
+  <name>mapreduce.frameowrk.name</name>
+  <value>yarn</value>
+</property>
+
+sudo nano $HADOOP_HOME/etc/hadoop/yarn-site.xml
+
+<property>
+  <name>yarn.nodemanager.aux-services</name>
+  <value>mapreduce_shuffle</value>
+</property>
+<property>
+  <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
+  <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+</property>
+<property>
+  <name>yarn.resourcemanager.hostname</name>
+  <value>127.0.0.1</value>
+</property>
+<property>
+  <name>yarn.acl.enable</name>
+  <value>0</value>
+</property>
+<property>
+  <name>yarn.nodemanager.env-whitelist</name>
+  <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PERPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+</property>
+
+hdfs namenode -format
+start-all.sh
+jps
+
+localhost:9870
+localhost:8088
+
+6. IMPLEMENT WORD COUNT / FREQUENCY PROGRAM USING 
+MAPREDUCE. 
+ 
+Steps to be followed: 
+• Step-1: Open Eclipse à then select  File à New à Java Project à 
+Name it WordCount à then Finish. 
+• Step-2: Create Three Java Classes into the project.  
+File à New à Class 
+Name them WCDriver (having the main function), WCMapper and 
+WCReducer. 
+• Step-3: You have to include two Reference Libraries, 
+Right Click on Project à then select Build Path à Click on Configure 
+Build Path à Add External JARs (Share à Hadoop). In this add JARs 
+of Client, Common, HDFS, MapReduce and YARN à Click on Apply 
+and Close. 
+• Step-4: Mapper Code which should be copied and pasted into the 
+WCMapper Java Class file. 
+// Importing libraries 
+import java.io.IOException; 
+import org.apache.hadoop.io.IntWritable; 
+import org.apache.hadoop.io.LongWritable; 
+import org.apache.hadoop.io.Text; 
+import org.apache.hadoop.mapred.MapReduceBase; 
+2  
+import org.apache.hadoop.mapred.Mapper; 
+import org.apache.hadoop.mapred.OutputCollector; 
+import org.apache.hadoop.mapred.Reporter; 
+ 
+public class WCMapper extends MapReduceBase implements 
+Mapper<LongWritable, Text, Text, IntWritable>  
+{  
+    // Map function 
+  public void map(LongWritable key, Text value, OutputCollector<Text,           
+IntWritable> output, Reporter rep) throws IOException 
+    { 
+        String line = value.toString(); 
+        // Splitting the line on spaces 
+        for (String word : line.split(" "))  
+        { 
+            if (word.length() > 0) 
+            { 
+                output.collect(new Text(word), new IntWritable(1)); 
+            } 
+        } 
+    } 
+} 
+ 
+  
+• Step-5: Reducer Code which should be copied and pasted into the 
+WCReducer Java Class file. 
+// Importing libraries 
+import java.io.IOException; 
+import java.util.Iterator; 
+import org.apache.hadoop.io.IntWritable; 
+import org.apache.hadoop.io.Text; 
+import org.apache.hadoop.mapred.MapReduceBase; 
+import org.apache.hadoop.mapred.OutputCollector; 
+import org.apache.hadoop.mapred.Reducer; 
+import org.apache.hadoop.mapred.Reporter; 
+ 
+public class WCReducer extends MapReduceBase implements 
+Reducer<Text, IntWritable, Text, IntWritable>  
+{ 
+ // Reduce function 
+ public void reduce(Text key, Iterator<IntWritable> value,  
+OutputCollector<Text, IntWritable> output, Reporter rep) throws 
+IOException 
+ { 
+  int count = 0; 
+  // Counting the frequency of each words 
+  while (value.hasNext())  
+  { 
+   IntWritable i = value.next(); 
+   count += i.get(); 
+  } 
+  output.collect(key, new IntWritable(count)); 
+ } 
+} 
+ 
+• Step-6: Driver Code which should be copied and pasted into the 
+WCDriver Java Class file. 
+// Importing libraries 
+import java.io.IOException; 
+import org.apache.hadoop.conf.Configured; 
+import org.apache.hadoop.fs.Path; 
+import org.apache.hadoop.io.IntWritable; 
+import org.apache.hadoop.io.Text; 
+import org.apache.hadoop.mapred.FileInputFormat; 
+import org.apache.hadoop.mapred.FileOutputFormat; 
+import org.apache.hadoop.mapred.JobClient; 
+import org.apache.hadoop.mapred.JobConf; 
+import org.apache.hadoop.util.Tool; 
+import org.apache.hadoop.util.ToolRunner; 
+ 
+public class WCDriver extends Configured implements Tool  
+{ 
+ public int run(String args[]) throws IOException 
+ {  
+  if (args.length < 2) 
+  { 
+   System.out.println("Please give valid inputs"); 
+   return -1; 
+  } 
+ 
+  JobConf conf = new JobConf(WCDriver.class); 
+  FileInputFormat.setInputPaths(conf, new Path(args[0])); 
+  FileOutputFormat.setOutputPath(conf, new Path(args[1])); 
+  conf.setMapperClass(WCMapper.class); 
+  conf.setReducerClass(WCReducer.class); 
+  conf.setMapOutputKeyClass(Text.class); 
+  conf.setMapOutputValueClass(IntWritable.class); 
+  conf.setOutputKeyClass(Text.class); 
+  conf.setOutputValueClass(IntWritable.class); 
+  JobClient.runJob(conf); 
+  return 0; 
+ } 
+ // Main Method 
+ public static void main(String args[]) throws Exception 
+ { 
+  int exitCode = ToolRunner.run(new WCDriver(), args); 
+  System.out.println(exitCode); 
+ } 
+} 
+ 
+• Step-7: Now you have to make a jar file.  
+Right Click on Project à Click on Export à Select export destination as 
+Jar File à Name the jar File (WordCount.jar) à Click on next à at 
+last Click on Finish.  
+ 
+• Step-8: Open the terminal and change the directory to the workspace.  
+You can do this by using “cd workspace/” command.  
+Now, Create a text file (WCFile.txt) and move it to HDFS.  
+For that open terminal and write the below code (remember you should be in 
+the same directory as jar file you have created just now), 
+cat WCFile.text 
+ 
+• Step-9: Now, run the below command to copy the file input file into the 
+HDFS, 
+hadoop fs -put WCFile.txt WCFile.txt 
+ 
+•  Step-10: Now to run the jar file, execute the below code, 
+hadoop jar wordcount.jar WCDriver WCFile.txt WCOutput 
+ 
+• Step-11: After Executing the code, you can see the result in WCOutput file 
+or by writing following command on terminal, 
+hadoop fs -cat WCOutput/part-00000 
+
+7. HDFS Commands
+
+hdfs dfs -ls  <path>
+hdfs dfs -mkdir <folder name>
+hdfs dfs -put ../Desktop/AI.txt /geeks
+hdfs dfs -cat <path>
+hdfs dfs -rmr <filename/directoryName>
+
+8. FIFA Dataset
+
+from pyspark.sql import SparkSession
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType, FloatType
+
+spark = SparkSession.builder.appName("FIFA").getOrCreate()
+
+schema = StructType([
+    StructField("team", StringType(), True),
+    StructField("team_code", StringType(), True),
+    StructField("association", StringType(), True),
+    StructField("rank", IntegerType(), True),
+    StructField("previous_rank", IntegerType(), True),
+    StructField("points", FloatType(), True),
+    StructField("previous_points", FloatType(), True),
+])
+
+fifa_df = spark.read.csv("fifa.csv", header = True, schema = schema)
+fifa_df.show()
+
+fifa_df.select("previous_points").show()
+
+spark.stop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
